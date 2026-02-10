@@ -1,7 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { CONFIG } from './config';
-import { NormalizedData, AlertData } from './fetchIndicator';
-import { BusinessProfile } from './personalization';
+import { ConfigManager } from './config_manager';
+import { NormalizedData } from './fetchIndicator';
+import { AlertData, BusinessProfile } from './lib/types';
 
 const genAI = new GoogleGenerativeAI(CONFIG.GEMINI_API_KEY);
 
@@ -62,7 +63,9 @@ export async function enhanceInsight(alert: AlertData, profile: BusinessProfile)
     }
 }
 export async function fetchLiveIndicatorsBatch(indicatorNames: string[], region: string): Promise<NormalizedData[]> {
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    const dynamicKey = await ConfigManager.getGeminiKey();
+    const genAI = new GoogleGenerativeAI(dynamicKey || CONFIG.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
         Actúa como un analista económico experto. Proporciona los valores mensuales más recientes (últimos 6 meses) de los siguientes indicadores económicos: ${indicatorNames.map(n => `"${n}"`).join(', ')} para la región: "${region}".
@@ -104,7 +107,9 @@ export async function fetchLiveIndicatorsBatch(indicatorNames: string[], region:
 export async function enhanceInsightsBatch(alerts: AlertData[], profile: BusinessProfile): Promise<AlertData[]> {
     if (alerts.length === 0) return [];
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    const dynamicKey = await ConfigManager.getGeminiKey();
+    const genAI = new GoogleGenerativeAI(dynamicKey || CONFIG.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
         Contexto del Negocio:

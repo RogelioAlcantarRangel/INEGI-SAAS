@@ -36,11 +36,16 @@ async function main() {
                 const signals = analyzeSeries(data);
                 if (signals.length > 0) {
                     console.log(`Detectadas ${signals.length} señales. Guardando alertas...`);
+                    const meta = CONFIG.INDICATOR_META[key] || { name: key, importance: 'medium' };
+
                     const alerts = signals.map(s => ({
                         indicator_id: s.indicator_id,
+                        indicator_name: meta.name,
                         alert_type: s.type,
                         date: s.date,
-                        description: s.description
+                        description: s.description,
+                        severity: meta.importance,
+                        value_change: s.value_change
                     }));
                     await saveAlertsToSupabase(alerts);
                     allAlerts.push(...alerts);

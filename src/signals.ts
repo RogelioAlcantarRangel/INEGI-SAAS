@@ -12,6 +12,7 @@ export interface Signal {
     type: SignalType;
     date: string;
     description: string;
+    value_change?: number; // El valor numérico del cambio detectado
 }
 
 /**
@@ -51,7 +52,8 @@ export function analyzeSeries(series: NormalizedData[]): Signal[] {
                 indicator_id: sorted[i].indicator_id,
                 type: SignalType.CONTRACTION,
                 date: currentDate,
-                description: 'Caída absoluta consecutiva en el indicador por 2 o más periodos.'
+                description: 'Caída absoluta consecutiva en el indicador por 2 o más periodos.',
+                value_change: currentVal - prevVal
             });
         }
 
@@ -65,14 +67,16 @@ export function analyzeSeries(series: NormalizedData[]): Signal[] {
                     indicator_id: sorted[i].indicator_id,
                     type: SignalType.TREND_CHANGE_NEG,
                     date: currentDate,
-                    description: 'El indicador cruzó hacia abajo su media móvil de 3 meses.'
+                    description: 'El indicador cruzó hacia abajo su media móvil de 3 meses.',
+                    value_change: currentVal - (sma3_curr || 0)
                 });
             } else if (currentVal > sma3_curr && values[i - 1] <= sma3_prev) {
                 signals.push({
                     indicator_id: sorted[i].indicator_id,
                     type: SignalType.TREND_CHANGE_POS,
                     date: currentDate,
-                    description: 'El indicador cruzó hacia arriba su media móvil de 3 meses.'
+                    description: 'El indicador cruzó hacia arriba su media móvil de 3 meses.',
+                    value_change: currentVal - (sma3_curr || 0)
                 });
             }
         }
@@ -93,7 +97,8 @@ export function analyzeSeries(series: NormalizedData[]): Signal[] {
                 indicator_id: sorted[i].indicator_id,
                 type: SignalType.DECELERATION,
                 date: currentDate,
-                description: 'Ritmo de crecimiento positivo pero inferior al promedio de los últimos 6 meses.'
+                description: 'Ritmo de crecimiento positivo pero inferior al promedio de los últimos 6 meses.',
+                value_change: growth_curr
             });
         }
     }

@@ -14,9 +14,12 @@ export interface NormalizedData {
 
 export interface AlertData {
     indicator_id: string;
+    indicator_name?: string; // Nombre legible
     alert_type: string;
     date: string;
     description: string;
+    severity?: 'high' | 'medium' | 'low';
+    value_change?: number;
 }
 
 export async function fetchFromInegi(indicatorId: string, source: string = 'BISE') {
