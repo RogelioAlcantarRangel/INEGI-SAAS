@@ -36,15 +36,17 @@ async function main() {
                 const signals = analyzeSeries(data);
                 if (signals.length > 0) {
                     console.log(`Detectadas ${signals.length} señales. Guardando alertas...`);
-                    const meta = CONFIG.INDICATOR_META[id] || { name: key, importance: 'medium' };
+                    const meta = CONFIG.INDICATOR_META[id];
+                    const nameToUse = meta ? meta.name : id;
+                    const importanceToUse = meta ? meta.importance : 'medium';
 
                     const alerts = signals.map(s => ({
                         indicator_id: s.indicator_id,
-                        indicator_name: meta.name,
+                        indicator_name: nameToUse,
                         alert_type: s.type,
                         date: s.date,
                         description: s.description,
-                        severity: meta.importance,
+                        severity: importanceToUse as any,
                         value_change: s.value_change
                     }));
                     await saveAlertsToSupabase(alerts);
@@ -85,13 +87,15 @@ async function main() {
                     if (liveSignals.length > 0) {
                         const alerts = liveSignals.map(s => ({
                             indicator_id: s.indicator_id,
+                            indicator_name: name, // Usar el nombre humano
                             alert_type: s.type,
                             date: s.date,
-                            description: s.description
+                            description: s.description,
+                            severity: 'medium' as const
                         }));
                         await saveAlertsToSupabase(alerts);
                         allAlerts.push(...alerts);
-                        console.log(`Alertas detectadas en datos vivos (${name}).`);
+                        console.log(`✅ [Gemini Live] Alertas detectadas para "${name}".`);
                     }
                 }
             }
@@ -100,14 +104,19 @@ async function main() {
         console.error(`❌ Error en Gemini Batch:`, err.message);
     }
 
-    // Filtrar solo alertas recientes (ej: últimos 12 meses) y tomar solo las TOP 5 para cuidar la cuota
+    // Filtrar alertas para Gemini: Tomar las más recientes de 2024 en adelante
     const recentAlerts = allAlerts
         .filter(a => {
-            const year = parseInt(a.date.split('/')[0]);
-            return year >= 2025; // Solo 2025 y adelante
+            const cleanDate = a.date.replace(/-/g, '/'); // Normalizar formato
+            const yearStr = cleanDate.split('/')[0].trim();
+            const year = parseInt(yearStr);
+            return year >= 2024;
         })
-        .sort((a, b) => b.date.localeCompare(a.date)) // Más recientes primero
-        .slice(0, 5); // Máximo 5 alertas para Gemini
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, 10);
+
+    console.log(`\n--- Preparando Batch de IA ---`);
+    console.log(`Alertas candidatas finales: ${recentAlerts.length}`);
 
     let enhancedAlerts: AlertData[] = [];
     if (recentAlerts.length > 0) {
@@ -115,9 +124,12 @@ async function main() {
         console.log(`Enviando las TOP ${recentAlerts.length} alertas más recientes a Gemini para análisis...`);
         try {
             enhancedAlerts = await enhanceInsightsBatch(recentAlerts, userProfile);
+            console.log(`✅ Gemini recibió y procesó ${enhancedAlerts.length} alertas con éxito.`);
+            // IMPORTANTE: Guardar estas alertas mejoradas (con ai_strategy)
+            await saveAlertsToSupabase(enhancedAlerts);
         } catch (err: any) {
             console.error(`⚠️ No se pudo obtener análisis de IA (Quota/Error):`, err.message);
-            enhancedAlerts = recentAlerts; // Seguir con las alertas básicas
+            enhancedAlerts = recentAlerts;
         }
     }
 

@@ -68,8 +68,8 @@ export default function Dashboard() {
               </strong>
             </p>
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <button className="action-btn-primary" style={{ fontSize: '0.75rem' }}>Consultar Especialista IA</button>
-              <button className="action-btn-secondary" style={{ fontSize: '0.75rem' }}>Exportar Panorama NL</button>
+              <button className="action-btn-ia" style={{ fontSize: '0.7rem', padding: '0.6rem 1rem' }}>Consultar Especialista IA</button>
+              <button className="action-btn-glass" style={{ fontSize: '0.7rem', padding: '0.6rem 1rem' }}>Exportar Panorama NL</button>
             </div>
           </div>
         </div>

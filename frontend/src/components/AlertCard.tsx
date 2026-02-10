@@ -45,16 +45,17 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
             style={{ cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
             className={`card ${getClass()}`}
         >
-            {/* Brillo de IA si tiene Gemini */}
-            {alert.description?.includes('🤖') && (
+            {/* Brillo de IA si tiene Estrategia Generada */}
+            {alert.ai_strategy && (
                 <div style={{
                     position: 'absolute',
                     top: 0,
                     right: 0,
-                    width: '100px',
-                    height: '100px',
-                    background: 'radial-gradient(circle, rgba(var(--accent-secondary-rgb), 0.15) 0%, transparent 70%)',
-                    pointerEvents: 'none'
+                    width: '120px',
+                    height: '120px',
+                    background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)',
+                    pointerEvents: 'none',
+                    zIndex: 0
                 }} />
             )}
 
@@ -124,29 +125,42 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
                     )}
                 </div>
             )}
-            {/* Acciones Interactivas */}
-            <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
-                <button className="action-btn-primary" onClick={(e) => {
-                    e.stopPropagation();
-                    window.alert(`IA INSIGHT PROFUNDO:\n\n${alert.description}\n\nRECOMENDACIÓN:\n${alert.ai_strategy || 'Analizando mejor curso de acción...'}`);
-                }}>
-                    <Zap className="h-4 w-4" />
-                    Acción IA
+            {/* Acciones Interactivas - Premium Design */}
+            <div style={{
+                marginTop: '1.5rem',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr',
+                gap: '0.5rem',
+                borderTop: '1px solid rgba(255,255,255,0.05)',
+                paddingTop: '1rem'
+            }}>
+                <button
+                    className="action-btn-ia"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        window.alert(`🚀 ESTRATEGIA DE IA:\n\n${alert.ai_strategy || 'Analizando mejor curso de acción...'}`);
+                    }}
+                >
+                    <Zap className="h-3 w-3" />
+                    ACCIÓN
                 </button>
-                <button className="action-btn-secondary" onClick={(e) => {
-                    e.stopPropagation();
-                    const text = encodeURIComponent(`🚨 Radar Macro Alert: ${alert.indicator_name || alert.indicator_id}\nFecha: ${alert.date}\nSeñal: ${alert.alert_type}\n\nAcción sugerida: ${alert.ai_strategy || 'Revisar dashboard'}`);
-                    window.open(`https://wa.me/?text=${text}`, '_blank');
-                }}>
-                    <Send className="h-4 w-4" />
-                    Compartir
+                <button
+                    className="action-btn-glass"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        const text = encodeURIComponent(`🚨 Radar: ${alert.indicator_name || alert.indicator_id}\n\nEstrategia: ${alert.description}`);
+                        window.open(`https://wa.me/?text=${text}`, '_blank');
+                    }}
+                >
+                    <Send className="h-3 w-3" />
+                    WHATSAPP
                 </button>
-                <button className="action-btn-secondary" onClick={(e) => {
-                    e.stopPropagation();
-                    window.alert("Generando Reporte Ejecutivo PDF...");
-                }}>
-                    <FileText className="h-4 w-4" />
-                    Reporte
+                <button
+                    className="action-btn-glass"
+                    onClick={(e) => { e.stopPropagation(); window.alert("Generando PDF..."); }}
+                >
+                    <FileText className="h-3 w-3" />
+                    PDF
                 </button>
             </div>
         </motion.div>

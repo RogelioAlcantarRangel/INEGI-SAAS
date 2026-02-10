@@ -45,44 +45,44 @@ export function analyzeSeries(series: NormalizedData[]): Signal[] {
         const prevVal = values[i - 1];
         const currentDate = dates[i];
 
-        // 1. CONTRACCIÓN
-        // 2 o más meses de caída absoluta
+        // 1. CONTRACCIÓN (2 periodos de caída)
         if (currentVal < prevVal && values[i - 1] < values[i - 2]) {
             signals.push({
                 indicator_id: sorted[i].indicator_id,
                 type: SignalType.CONTRACTION,
                 date: currentDate,
-                description: 'Caída absoluta consecutiva en el indicador por 2 o más periodos.',
+                description: 'Contracción absoluta detectada por 2 periodos consecutivos.',
                 value_change: currentVal - prevVal
             });
         }
 
-        // 2. CAMBIO DE TENDENCIA (SMA3)
-        const sma3_curr = calculateSMA(values.slice(0, i + 1), 3);
-        const sma3_prev = calculateSMA(values.slice(0, i), 3);
+        // 2. CAMBIO DE TENDENCIA (Benchmark: SMA de los 3 meses PREVIOS)
+        // El usuario identificó que para Enero 2026, la media es 48.04 (que es el promedio de Oct, Nov, Dic)
+        const sma3_lagged = calculateSMA(values.slice(i - 3, i), 3);
 
-        if (sma3_curr !== null && sma3_prev !== null) {
-            if (currentVal < sma3_curr && values[i - 1] >= sma3_prev) {
-                signals.push({
-                    indicator_id: sorted[i].indicator_id,
-                    type: SignalType.TREND_CHANGE_NEG,
-                    date: currentDate,
-                    description: 'El indicador cruzó hacia abajo su media móvil de 3 meses.',
-                    value_change: currentVal - (sma3_curr || 0)
-                });
-            } else if (currentVal > sma3_curr && values[i - 1] <= sma3_prev) {
+        if (sma3_lagged !== null) {
+            // Cruce hacia arriba: actual > tendencia previa, y anterior <= tendencia previa?
+            // Simplificamos: si cruza la "línea de tendencia" (el promedio de los últimos 3 meses)
+            if (currentVal > sma3_lagged && prevVal <= sma3_lagged) {
                 signals.push({
                     indicator_id: sorted[i].indicator_id,
                     type: SignalType.TREND_CHANGE_POS,
                     date: currentDate,
-                    description: 'El indicador cruzó hacia arriba su media móvil de 3 meses.',
-                    value_change: currentVal - (sma3_curr || 0)
+                    description: `El indicador cruzó al alza su línea de tendencia (SMA3: ${sma3_lagged.toFixed(2)}).`,
+                    value_change: currentVal - prevVal // Mantenemos delta vs t-1 para claridad del badge
+                });
+            } else if (currentVal < sma3_lagged && prevVal >= sma3_lagged) {
+                signals.push({
+                    indicator_id: sorted[i].indicator_id,
+                    type: SignalType.TREND_CHANGE_NEG,
+                    date: currentDate,
+                    description: `El indicador cruzó a la baja su línea de tendencia (SMA3: ${sma3_lagged.toFixed(2)}).`,
+                    value_change: currentVal - prevVal
                 });
             }
         }
 
         // 3. DESACELERACIÓN
-        // Crecimiento positivo pero menor al promedio de los últimos 6 meses por 2 periodos
         const growth_curr = getGrowthRate(currentVal, prevVal);
         const growth_prev = getGrowthRate(values[i - 1], values[i - 2]);
 
@@ -97,8 +97,8 @@ export function analyzeSeries(series: NormalizedData[]): Signal[] {
                 indicator_id: sorted[i].indicator_id,
                 type: SignalType.DECELERATION,
                 date: currentDate,
-                description: 'Ritmo de crecimiento positivo pero inferior al promedio de los últimos 6 meses.',
-                value_change: growth_curr
+                description: 'Ritmo de crecimiento positivo pero inferior al promedio histórico reciente.',
+                value_change: currentVal - prevVal
             });
         }
     }
