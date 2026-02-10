@@ -13,6 +13,8 @@ export interface AlertData {
     description: string;
     severity?: 'high' | 'medium' | 'low';
     value_change?: number;
+    ai_strategy?: string;
+    regional_context?: string;
 }
 
 export interface BusinessProfile {

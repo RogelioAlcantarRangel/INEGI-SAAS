@@ -36,7 +36,7 @@ async function main() {
                 const signals = analyzeSeries(data);
                 if (signals.length > 0) {
                     console.log(`Detectadas ${signals.length} señales. Guardando alertas...`);
-                    const meta = CONFIG.INDICATOR_META[key] || { name: key, importance: 'medium' };
+                    const meta = CONFIG.INDICATOR_META[id] || { name: key, importance: 'medium' };
 
                     const alerts = signals.map(s => ({
                         indicator_id: s.indicator_id,

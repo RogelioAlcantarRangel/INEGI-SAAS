@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, TrendingDown, TrendingUp, Zap, Sparkles } from 'lucide-react';
+import { AlertCircle, TrendingDown, TrendingUp, Zap, Sparkles, ChevronRight, FileText, Send } from 'lucide-react';
 import { AlertData, getAlertMeta } from '@/lib/types';
 
 interface AlertCardProps {
@@ -124,6 +124,31 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
                     )}
                 </div>
             )}
+            {/* Acciones Interactivas */}
+            <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
+                <button className="action-btn-primary" onClick={(e) => {
+                    e.stopPropagation();
+                    window.alert(`IA INSIGHT PROFUNDO:\n\n${alert.description}\n\nRECOMENDACIÓN:\n${alert.ai_strategy || 'Analizando mejor curso de acción...'}`);
+                }}>
+                    <Zap className="h-4 w-4" />
+                    Acción IA
+                </button>
+                <button className="action-btn-secondary" onClick={(e) => {
+                    e.stopPropagation();
+                    const text = encodeURIComponent(`🚨 Radar Macro Alert: ${alert.indicator_name || alert.indicator_id}\nFecha: ${alert.date}\nSeñal: ${alert.alert_type}\n\nAcción sugerida: ${alert.ai_strategy || 'Revisar dashboard'}`);
+                    window.open(`https://wa.me/?text=${text}`, '_blank');
+                }}>
+                    <Send className="h-4 w-4" />
+                    Compartir
+                </button>
+                <button className="action-btn-secondary" onClick={(e) => {
+                    e.stopPropagation();
+                    window.alert("Generando Reporte Ejecutivo PDF...");
+                }}>
+                    <FileText className="h-4 w-4" />
+                    Reporte
+                </button>
+            </div>
         </motion.div>
     );
 };

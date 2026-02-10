@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS economic_alerts (
   description TEXT,
   severity TEXT DEFAULT 'medium',   -- high, medium, low
   value_change NUMERIC,             -- Magnitud del cambio
+  ai_strategy TEXT,                 -- Estrategia accionable de Gemini
+  regional_context TEXT,            -- Contexto específico (ej: MTY/NL)
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(indicator_id, alert_type, date)
 );
@@ -37,7 +39,12 @@ CREATE TABLE IF NOT EXISTS app_config (
 ALTER TABLE economic_signals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE economic_alerts ENABLE ROW LEVEL SECURITY;
 
--- Política de lectura pública
+-- Políticas de lectura pública (Idempotentes)
+DROP POLICY IF EXISTS "Public Read Access Signals" ON economic_signals;
 CREATE POLICY "Public Read Access Signals" ON economic_signals FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public Read Access Alerts" ON economic_alerts;
 CREATE POLICY "Public Read Access Alerts" ON economic_alerts FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public Read Access Config" ON app_config;
 CREATE POLICY "Public Read Access Config" ON app_config FOR SELECT USING (true);

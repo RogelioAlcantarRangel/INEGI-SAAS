@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { AlertData } from '@/lib/types';
 import AlertCard from '@/components/AlertCard';
-import { LayoutDashboard, Bell, Settings, Info } from 'lucide-react';
+import { LayoutDashboard, Bell, Settings, Info, Sparkles } from 'lucide-react';
 
 export default function Dashboard() {
   const [alerts, setAlerts] = useState<AlertData[]>([]);
@@ -43,6 +43,37 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
+
+      <section className="ai-command-center">
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+          <div style={{
+            background: 'rgba(var(--accent-secondary-rgb), 0.2)',
+            padding: '0.75rem',
+            borderRadius: '12px',
+            border: '1px solid rgba(var(--accent-secondary-rgb), 0.3)'
+          }}>
+            <Sparkles className="h-6 w-6" style={{ color: 'var(--accent-secondary)' }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, letterSpacing: '0.02em' }}>
+                INTELIGENCIA REGIONAL: <span style={{ color: 'var(--accent-secondary)' }}>MONTERREY / NL</span>
+              </h2>
+              <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>LIVE ANALYSIS v2.0</div>
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1rem' }}>
+              El entorno manufacturero en Nuevo León presenta señales mixtas. Mientras que la confianza empresarial se mantiene en niveles críticos, la demanda de pedidos muestra una recuperación marginal del 2.1%.
+              <strong style={{ color: 'var(--accent-primary)', display: 'block', marginTop: '0.5rem' }}>
+                Recomendación: Priorizar inventarios de seguridad ante volatilidad en logística transfronteriza.
+              </strong>
+            </p>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button className="action-btn-primary" style={{ fontSize: '0.75rem' }}>Consultar Especialista IA</button>
+              <button className="action-btn-secondary" style={{ fontSize: '0.75rem' }}>Exportar Panorama NL</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section style={{ marginBottom: '2.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
