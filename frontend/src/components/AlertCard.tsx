@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import jsPDF from 'jspdf';
 import { AlertCircle, TrendingDown, TrendingUp, Zap, Sparkles, ChevronRight, FileText, Send } from 'lucide-react';
 import { AlertData, getAlertMeta } from '@/lib/types';
 
@@ -157,7 +158,15 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
                 </button>
                 <button
                     className="action-btn-glass"
-                    onClick={(e) => { e.stopPropagation(); window.alert("Generando PDF..."); }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        const doc = new jsPDF();
+                        doc.text(`Alerta: ${alert.indicator_name || alert.indicator_id}`, 10, 10);
+                        doc.text(`Tipo: ${alert.alert_type}`, 10, 20);
+                        doc.text(`Fecha: ${alert.date}`, 10, 30);
+                        doc.text(`Análisis: ${alert.description || ''}`, 10, 40, { maxWidth: 180 });
+                        doc.save(`alerta-${alert.indicator_id}-${alert.date}.pdf`);
+                    }}
                 >
                     <FileText className="h-3 w-3" />
                     PDF

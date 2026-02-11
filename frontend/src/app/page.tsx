@@ -62,10 +62,13 @@ export default function Dashboard() {
               <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>LIVE ANALYSIS v2.0</div>
             </div>
             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1rem' }}>
-              El entorno manufacturero en Nuevo León presenta señales mixtas. Mientras que la confianza empresarial se mantiene en niveles críticos, la demanda de pedidos muestra una recuperación marginal del 2.1%.
-              <strong style={{ color: 'var(--accent-primary)', display: 'block', marginTop: '0.5rem' }}>
-                Recomendación: Priorizar inventarios de seguridad ante volatilidad en logística transfronteriza.
-              </strong>
+              {alerts.length > 0
+                ? `Detectadas ${alerts.length} señales activas. ${
+                    alerts.filter(a => a.alert_type === 'ALERTA_CONTRACCION').length > 0
+                      ? 'Alerta de contracción crítica en manufactura.'
+                      : 'Monitoreo de tendencias en curso.'
+                  }`
+                : 'El entorno regional se encuentra dentro de parámetros normales.'}
             </p>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button className="action-btn-ia" style={{ fontSize: '0.7rem', padding: '0.6rem 1rem' }}>Consultar Especialista IA</button>
